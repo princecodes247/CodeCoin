@@ -1,86 +1,192 @@
 import type { NextPage } from 'next'
 import Head from 'next/head'
 import Image from 'next/image'
+import { ContractInterface, ethers } from 'ethers'
+import Web3Modal from 'web3modal'
+import CodeCoin from '../utils/CodeCoin'
+import { useState } from 'react'
 
-const Home: NextPage = () => {
+interface HomeProps {
+  contractName: string;
+contractSymbol: string;
+contractAirdrops: number;
+maxAirdropAddresses: number;
+}
+
+const Home: NextPage<HomeProps> = (props: HomeProps) => {
+
+  const {contractName, contractSymbol, contractAirdrops, maxAirdropAddresses} = props
+
+  const [airdropLoading, setAirdropLoading] = useState(false)
+
+  console.log(props)
+  const CodeCoinContractAddress = CodeCoin.address
+  const CodeCoinContractABI = CodeCoin.abi
+  const connectFunc = async () => {
+    const providerOptions = {
+      /* See Provider Options Section */
+    }
+
+    const web3Modal = new Web3Modal({
+      network: 'mainnet', // optional
+      cacheProvider: true, // optional
+      providerOptions, // required
+    })
+    try {
+      const instance = await web3Modal.connect()
+      const provider = new ethers.providers.Web3Provider(instance)
+      const signer = provider.getSigner()
+
+      const CodeCoinContract = new ethers.Contract(
+        CodeCoinContractAddress,
+        CodeCoinContractABI,
+        signer
+      )
+
+        CodeCoinContract.
+
+    } catch (error) {
+      console.log(error)
+    }
+ 
+  }
+  const formSubmit = async (e: { preventDefault: () => void }) => {
+    e.preventDefault()
+    setAirdropLoading(true)
+    await connectFunc()
+
+
+  }
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center py-2">
+    <div className="flex flex-col justify-center min-h-screen pb-2 text-white bg-black">
       <Head>
         <title>Create Next App</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
-
-      <main className="flex w-full flex-1 flex-col items-center justify-center px-20 text-center">
-        <h1 className="text-6xl font-bold">
-          Welcome to{' '}
-          <a className="text-blue-600" href="https://nextjs.org">
-            Next.js!
-          </a>
-        </h1>
-
-        <p className="mt-3 text-2xl">
-          Get started by editing{' '}
-          <code className="rounded-md bg-gray-100 p-3 font-mono text-lg">
-            pages/index.tsx
-          </code>
-        </p>
-
-        <div className="mt-6 flex max-w-4xl flex-wrap items-center justify-around sm:w-full">
-          <a
-            href="https://nextjs.org/docs"
-            className="mt-6 w-96 rounded-xl border p-6 text-left hover:text-blue-600 focus:text-blue-600"
+      <header className="fixed top-0 z-10 w-full p-4 px-5 sm:px-20">
+        <h1 className="text-xl font-bold">{contractName}</h1>
+      </header>
+      <main className="flex flex-col justify-center flex-1 w-full ">
+        <div className="fixed top-0 z-20 p-4 bg-green-300 rounded notification right-7"></div>
+        <div className="absolute bg-purple-500 circle -bottom-32 -left-32 h-72 w-72 opacity-70 blur-3xl"></div>
+        <section className="relative flex flex-col items-center justify-center h-screen px-20 overflow-hidden text-center">
+          <div className="absolute bg-blue-500 circle -top-32 -right-32 h-72 w-72 opacity-70 blur-3xl"></div>
+          <h2 className="text-6xl sm:text-8xl">
+            Crypto for <span className="text-blue-600">developers</span>
+          </h2>
+          <p></p>
+          <button
+            
+            className="relative flex items-center justify-center gap-4 p-3 px-8 mt-3 transition-all duration-200 bg-black border border-white rounded border-width-2 top-20 hover:bg-white hover:text-black"
           >
-            <h3 className="text-2xl font-bold">Documentation &rarr;</h3>
-            <p className="mt-4 text-xl">
-              Find in-depth information about Next.js features and API.
-            </p>
-          </a>
+            Get airdrop
+          </button>
+        </section>
+        <section className="flex w-full gap-2 my-20 text-xl text-center">
+          <div className="flex flex-col items-center justify-center flex-1 p-5 border-r border-white">
+            <h4 className="font-bold">Total Supply:</h4>
+            <p>120</p>
+          </div>
+          <div className="flex flex-col items-center justify-center flex-1 p-5 border-r border-white">
+            <h4 className="font-bold">Token Symbol </h4>
+            <p>{contractSymbol}</p>
+          </div>
+          <div className="flex flex-col items-center justify-center flex-1 p-5">
+            <h4 className="font-bold">Airdrop slots left</h4>
+            <p>{maxAirdropAddresses-contractAirdrops}</p>
+          </div>
+        </section>
+        <section className="flex flex-col items-center justify-between w-full px-20 pb-20 ">
+          <h3 className="mb-10 text-4xl text-center">Recieve your airdrop</h3>
+          <form className="flex flex-col w-full gap-3 md:w-2/4 " action="">
+            <label className="w-full" htmlFor="">
+              <p className="text-sm text-gray-300">
+                Follow <a href="">@princecodes247</a> on twitter
+              </p>
+              <input
+                className="w-full p-3 mt-2 bg-black border border-white rounded border-width-2"
+                type="text"
+                placeholder="Enter your twitter handle"
+              />
+            </label>
+            <label className="w-full" htmlFor="">
+              <p className="text-sm text-gray-300">
+                Drop your ETH contract address
+              </p>
+              <input
+                className="w-full p-3 mt-2 bg-black border border-white rounded border-width-2"
+                type="text"
+                placeholder="0x0000000"
+              />
+            </label>
 
-          <a
-            href="https://nextjs.org/learn"
-            className="mt-6 w-96 rounded-xl border p-6 text-left hover:text-blue-600 focus:text-blue-600"
-          >
-            <h3 className="text-2xl font-bold">Learn &rarr;</h3>
-            <p className="mt-4 text-xl">
-              Learn about Next.js in an interactive course with quizzes!
-            </p>
-          </a>
+            <button
+            onClick={formSubmit}
+            className="flex items-center justify-center gap-4 p-3 mt-3 transition-all duration-200 bg-black border border-white rounded border-width-2 hover:bg-white hover:text-black">
 
-          <a
-            href="https://github.com/vercel/next.js/tree/canary/examples"
-            className="mt-6 w-96 rounded-xl border p-6 text-left hover:text-blue-600 focus:text-blue-600"
-          >
-            <h3 className="text-2xl font-bold">Examples &rarr;</h3>
-            <p className="mt-4 text-xl">
-              Discover and deploy boilerplate example Next.js projects.
-            </p>
-          </a>
-
-          <a
-            href="https://vercel.com/import?filter=next.js&utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className="mt-6 w-96 rounded-xl border p-6 text-left hover:text-blue-600 focus:text-blue-600"
-          >
-            <h3 className="text-2xl font-bold">Deploy &rarr;</h3>
-            <p className="mt-4 text-xl">
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
-        </div>
+              <div className={`w-4 h-4 border border-white rounded-full animate-duration-3000 animate-spin border-x-0 ${!airdropLoading ? "hidden" : ""}`}></div>
+              Get airdrop
+            </button>
+          </form>
+        </section>
       </main>
 
-      <footer className="flex h-24 w-full items-center justify-center border-t">
+      <footer className="flex items-center justify-center w-full h-24 border-t">
         <a
           className="flex items-center justify-center gap-2"
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
+          href="https://www"
           target="_blank"
           rel="noopener noreferrer"
         >
-          Powered by{' '}
-          <Image src="/vercel.svg" alt="Vercel Logo" width={72} height={16} />
+          Built by{' '}
+          <span className="text-purple-500 underline underline-offset-2">
+            PrinceCodes247
+          </span>
         </a>
       </footer>
     </div>
   )
+}
+
+// GET PROPS FOR SERVER SIDE RENDERING
+export async function getServerSideProps(context: any) {
+  // get todo data from API
+  let AlchemyApiKey = process.env.ALCHEMY_API_KEY
+
+  // Use the mainnet
+  const network = 'rinkeby'
+
+  // Specify your own API keys
+  // Each is optional, and if you omit it the default
+  // API key for that service will be used.
+  const provider = ethers.getDefaultProvider(network, {
+    alchemy: AlchemyApiKey,
+  })
+  // const signer = provider.
+  const CodeCoinContract = new ethers.Contract(
+    CodeCoin.address,
+    CodeCoin.abi,
+    provider
+  )
+
+
+  const [contractName, contractSymbol, contractAirdrops, maxAirdropAddresses] =
+    await Promise.all([
+      CodeCoinContract.name(),
+      CodeCoinContract.symbol(),
+      CodeCoinContract.numAirdropsDone(),
+      CodeCoinContract.maxAirdropAddresses(),
+      
+    ])
+  // return props
+  return {
+    props: {
+      contractName,
+      contractSymbol,
+      contractAirdrops,
+      maxAirdropAddresses
+    },
+  }
 }
 
 export default Home

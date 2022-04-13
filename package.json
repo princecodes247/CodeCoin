@@ -6,9 +6,11 @@
     "start": "next start"
   },
   "dependencies": {
+    "ethers": "^5.6.2",
     "next": "latest",
     "react": "^17.0.2",
-    "react-dom": "^17.0.2"
+    "react-dom": "^17.0.2",
+    "web3modal": "^1.9.6"
   },
   "devDependencies": {
     "@types/node": "17.0.4",
