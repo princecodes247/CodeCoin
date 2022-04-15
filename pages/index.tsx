@@ -5,6 +5,7 @@ import { ContractInterface, ethers } from 'ethers'
 import Web3Modal from 'web3modal'
 import CodeCoin from '../utils/CodeCoin'
 import { useState } from 'react'
+import { Transition } from '@headlessui/react'
 
 interface HomeProps {
   contractName: string;
@@ -18,10 +19,12 @@ const Home: NextPage<HomeProps> = (props: HomeProps) => {
   const {contractName, contractSymbol, contractAirdrops, maxAirdropAddresses} = props
 
   const [airdropLoading, setAirdropLoading] = useState(false)
+  const [notifications, setNotifications] = useState([])
 
   console.log(props)
   const CodeCoinContractAddress = CodeCoin.address
   const CodeCoinContractABI = CodeCoin.abi
+
   const connectFunc = async () => {
     const providerOptions = {
       /* See Provider Options Section */
@@ -42,32 +45,48 @@ const Home: NextPage<HomeProps> = (props: HomeProps) => {
         CodeCoinContractABI,
         signer
       )
+      
 
-        CodeCoinContract.
+      await CodeCoinContract.mintAirdrop()
+      // return CodeCoinContract
 
     } catch (error) {
       console.log(error)
     }
- 
+
   }
   const formSubmit = async (e: { preventDefault: () => void }) => {
     e.preventDefault()
     setAirdropLoading(true)
+    
     await connectFunc()
+    setAirdropLoading(false)
 
 
   }
   return (
     <div className="flex flex-col justify-center min-h-screen pb-2 text-white bg-black">
       <Head>
-        <title>Create Next App</title>
+        <title>CodeCoin</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <header className="fixed top-0 z-10 w-full p-4 px-5 sm:px-20">
         <h1 className="text-xl font-bold">{contractName}</h1>
       </header>
       <main className="flex flex-col justify-center flex-1 w-full ">
-        <div className="fixed top-0 z-20 p-4 bg-green-300 rounded notification right-7"></div>
+      <Transition
+        show={true}
+        enter="transition-opacity duration-75"
+        enterFrom="opacity-0"
+        enterTo="opacity-100"
+        leave="transition-opacity duration-150"
+        leaveFrom="opacity-100"
+        leaveTo="opacity-0"
+      >
+        <div className="fixed top-0 z-20 p-4 bg-green-300 rounded notification right-7">
+
+        </div>
+        </Transition>
         <div className="absolute bg-purple-500 circle -bottom-32 -left-32 h-72 w-72 opacity-70 blur-3xl"></div>
         <section className="relative flex flex-col items-center justify-center h-screen px-20 overflow-hidden text-center">
           <div className="absolute bg-blue-500 circle -top-32 -right-32 h-72 w-72 opacity-70 blur-3xl"></div>
@@ -82,6 +101,7 @@ const Home: NextPage<HomeProps> = (props: HomeProps) => {
             Get airdrop
           </button>
         </section>
+        
         <section className="flex w-full gap-2 my-20 text-xl text-center">
           <div className="flex flex-col items-center justify-center flex-1 p-5 border-r border-white">
             <h4 className="font-bold">Total Supply:</h4>
@@ -109,7 +129,7 @@ const Home: NextPage<HomeProps> = (props: HomeProps) => {
                 placeholder="Enter your twitter handle"
               />
             </label>
-            <label className="w-full" htmlFor="">
+            {/* <label className="w-full" htmlFor="">
               <p className="text-sm text-gray-300">
                 Drop your ETH contract address
               </p>
@@ -118,7 +138,7 @@ const Home: NextPage<HomeProps> = (props: HomeProps) => {
                 type="text"
                 placeholder="0x0000000"
               />
-            </label>
+            </label> */}
 
             <button
             onClick={formSubmit}
@@ -170,7 +190,8 @@ export async function getServerSideProps(context: any) {
   )
 
 
-  const [contractName, contractSymbol, contractAirdrops, maxAirdropAddresses] =
+  try {
+    const [contractName, contractSymbol, contractAirdrops, maxAirdropAddresses] =
     await Promise.all([
       CodeCoinContract.name(),
       CodeCoinContract.symbol(),
@@ -186,6 +207,12 @@ export async function getServerSideProps(context: any) {
       contractAirdrops,
       maxAirdropAddresses
     },
+  }
+  } catch (error) {
+    console.log(error)
+  }
+  return {
+    props: {}
   }
 }
 
